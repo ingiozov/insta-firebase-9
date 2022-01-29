@@ -17,6 +17,17 @@ export async function doesUsernameExist(username) {
   return querySnapshot.docs.map((user) => user.data().length > 0)
 }
 
+export async function getUserByUsername(username) {
+  const q = query(collection(db, 'users'), where('username', '==', username))
+  const querySnapshot = await getDocs(q)
+  const user = querySnapshot.docs.map((item) => ({
+    ...item.data(),
+    docId: item.id,
+  }))
+
+  return user
+}
+
 // Get user from the firestore where userId === userId (passed from the auth)
 export async function getUserByUserId(userId) {
   const q = query(collection(db, 'users'), where('userId', '==', userId))
@@ -93,4 +104,17 @@ export async function getPhotos(userId, following) {
   )
 
   return photosWithUserDetails
+}
+
+export async function getUserIdByUsername(username) {}
+
+export async function getUserPhotosByUsername(username) {
+  const [user] = await getUserByUsername(username)
+  const q = query(collection(db, 'photos'), where('userId', '==', user.userId))
+  const result = await getDocs(q)
+
+  return result.docs.map((item) => ({
+    ...item.data(),
+    docId: item.id,
+  }))
 }
