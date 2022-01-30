@@ -1,10 +1,8 @@
 import { useReducer, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import Header from './header'
-import {
-  getUserByUsername,
-  getUserPhotosByUsername,
-} from '../../services/firebase'
+import { getUserPhotosByUsername } from '../../services/firebase'
+import Photos from './photos'
 
 export default function Profile({ user }) {
   const reducer = (state, newState) => ({ ...state, ...newState })
@@ -21,22 +19,25 @@ export default function Profile({ user }) {
   useEffect(() => {
     async function getProfileInfoAndPhotos() {
       const photos = await getUserPhotosByUsername(user.username)
-      console.log(photos)
       dispatch({
         profile: user,
         photosCollection: photos,
         followerCount: user.followers.length,
       })
     }
-    if (user.username) {
-      getProfileInfoAndPhotos()
-    }
+
+    getProfileInfoAndPhotos()
   }, [user.username])
 
   return (
     <>
-      <Header />
-      <p>Hello {user.username}</p>
+      <Header
+        photosCount={photosCollection ? photosCollection.length : 0}
+        profile={profile}
+        followerCount={followerCount}
+        setFollowerCount={dispatch}
+      />
+      <Photos photos={photosCollection} />
     </>
   )
 }
